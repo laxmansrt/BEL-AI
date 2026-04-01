@@ -11,6 +11,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap"
     rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
@@ -3769,11 +3771,42 @@
         <div><div style="font-size:13px;font-weight:600">${d.driver}</div><div style="font-size:11px;color:var(--white75)">${d.vehicle}</div></div>
         <button class="btn-outline" style="padding:8px 14px;font-size:12px" onclick="showToast('Calling driver...')">📞 Call</button>
       </div>
-      <button onclick="openBlockchainExplorer('${d.id}')" style="width:100%;margin-top:10px;padding:11px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.45);border-radius:12px;color:#22c55e;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px">
-        🔗 View Blockchain
-      </button>
+      <div style="display:flex; gap:8px; margin-top:10px">
+        <button onclick="toggleTrackMap('${d.id}')" style="flex:1;padding:11px;background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.45);border-radius:12px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px">
+          📍 Track on Map
+        </button>
+        <button onclick="openBlockchainExplorer('${d.id}')" style="flex:1;padding:11px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.45);border-radius:12px;color:#22c55e;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px">
+          🔗 View Blockchain
+        </button>
+      </div>
+      <div id="map-container-${d.id}" style="display:none; height:200px; margin-top:12px; border-radius:12px; overflow:hidden"></div>
     </div>`;
       }).join("");
+    }
+    let TRACKING_MAPS = {};
+    function toggleTrackMap(id) {
+      const mc = document.getElementById('map-container-' + id);
+      if (mc.style.display === "none") {
+        mc.style.display = "block";
+        if (!TRACKING_MAPS[id]) {
+          setTimeout(() => {
+            const map = L.map('map-container-' + id).setView([12.9716, 77.5946], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+            const truckIcon = L.divIcon({ html: '<div style="font-size:24px">🚚</div>', className: 'dummy-style', iconSize: [24,24] });
+            const m = L.marker([12.9716 + (Math.random()-0.5)*0.5, 77.5946 + (Math.random()-0.5)*0.5], {icon: truckIcon}).addTo(map);
+            setInterval(() => {
+              const pos = m.getLatLng();
+              m.setLatLng([pos.lat + (Math.random()-0.5)*0.01, pos.lng + (Math.random()-0.5)*0.01]);
+            }, 2000);
+            TRACKING_MAPS[id] = map;
+            map.invalidateSize();
+          }, 50);
+        } else {
+            TRACKING_MAPS[id].invalidateSize();
+        }
+      } else {
+        mc.style.display = "none";
+      }
     }
     function toggleSharePrice() {
       const f = document.getElementById("sharePriceForm");
