@@ -17,7 +17,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer
+    onload="initGoogleAuth()"></script>
   <style>
     * {
       margin: 0;
@@ -3236,34 +3237,42 @@
 
     // ── Google Sign-In ────────────────────────────────────
     function initGoogleAuth() {
-      if (!window.google || !window.google.accounts) return;
-      if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') return;
+      if (!window.google || !window.google.accounts) {
+        // GSI not ready yet — poll until it is (max 10s)
+        let attempts = 0;
+        const poll = setInterval(() => {
+          attempts++;
+          if (window.google && window.google.accounts) {
+            clearInterval(poll);
+            initGoogleAuth();
+          } else if (attempts > 20) {
+            clearInterval(poll); // give up after 10s
+          }
+        }, 500);
+        return;
+      }
 
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleCredential,
         ux_mode: 'popup',
+        auto_select: false,
+        cancel_on_tap_outside: true,
       });
 
-      // Render standard Google buttons to avoid programmatic click blockers
-      const containers = document.querySelectorAll('.google-btn-container');
-      containers.forEach(container => {
+      // Render standard Google Sign-In buttons in all containers
+      document.querySelectorAll('.google-btn-container').forEach(container => {
+        container.innerHTML = ''; // clear any previous render
         google.accounts.id.renderButton(container, {
-          theme: "filled_black",
-          size: "large",
-          shape: "pill",
+          theme: 'filled_black',
+          size: 'large',
+          shape: 'pill',
           width: 280,
-          text: "continue_with"
+          text: 'continue_with',
+          logo_alignment: 'left',
         });
       });
     }
-
-    // Automatically initialize when the script loads or document is ready
-    window.onload = () => {
-      initGoogleAuth();
-      // Fallback initialized attempt
-      setTimeout(initGoogleAuth, 1000);
-    };
     async function handleGoogleCredential(response) {
       showLoad('Signing in with Google...');
       try {
@@ -3363,6 +3372,8 @@
         bg.style.display = "block";
       } else bg.style.display = "none";
       window.scrollTo(0, 0);
+      // Re-render Google buttons whenever auth screen is shown
+      if (id === 'mod-auth') setTimeout(initGoogleAuth, 100);
     }
     function pickLang(lang, el) {
       localStorage.setItem("belai_lang", lang);
