@@ -1537,6 +1537,7 @@
   <script>
     const GROQ_KEY = "";
     const API_BASE = "https://bel-ai-bknd.vercel.app/api";
+    // const API_BASE = "http://localhost:4001/api"; // Local testing
     // Shared config bridge for belai-features.js (external scripts can't access inline let/const)
     window.BELAI = {
       get API_BASE() { return API_BASE; },
@@ -4180,15 +4181,13 @@
         const data = await res.json();
         p.style.display = "none";
         // Backend returns direct JSON object — check for disease_name field
-        if (data.disease_name) {
-          showDiseaseResult(data);
-        } else if (data.error) {
-          const detail = data.api_error ? JSON.stringify(data.api_error) : "";
-          showToast(`⚠️ Analysis failed: ${data.error} ${detail}`);
-          document.getElementById("diseaseResults").style.display = "none";
-        } else {
-          showToast("⚠️ Could not analyze image. Try a clearer photo of a leaf.");
+        let parsed = data;
+        if (typeof data === 'string') {
+          try { parsed = JSON.parse(data.replace(/```json|```/g, '').trim()); } catch(e) {}
         }
+        if (parsed.disease_name) showDiseaseResult(parsed);
+        else if (parsed.error) showToast('⚠️ ' + parsed.error);
+        else showToast('⚠️ Could not analyze image. Try a clearer photo of a leaf.');
       } catch (e) {
         p.style.display = "none";
         showToast("❌ Network error. Check your connection and try again.");
