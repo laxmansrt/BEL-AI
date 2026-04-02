@@ -4157,49 +4157,64 @@
           body: JSON.stringify({ imageBase64: b64.slice(0, 2000000) }),
         });
         const data = await res.json();
-        const txt = data.choices?.[0]?.message?.content || "";
-        const m = txt.match(/\{[\s\S]*\}/);
         p.style.display = "none";
-        if (m) showDiseaseResult(JSON.parse(m[0]));
-        else showDemoDisease();
+        // Backend returns direct JSON object — check for disease_name field
+        if (data.disease_name) {
+          showDiseaseResult(data);
+        } else if (data.error) {
+          showToast("⚠️ Analysis failed: " + data.error);
+          document.getElementById("diseaseResults").style.display = "none";
+        } else {
+          showToast("⚠️ Could not analyze image. Try a clearer photo of a leaf.");
+        }
       } catch (e) {
         p.style.display = "none";
-        showDemoDisease();
+        showToast("❌ Network error. Check your connection and try again.");
       }
     }
     function showDiseaseResult(d) {
       const r = document.getElementById("diseaseResults");
       r.style.display = "";
+      const sevColor = d.severity === 'Healthy' ? 'var(--green-dot)' :
+                       d.severity === 'Mild' ? '#22c55e' :
+                       d.severity === 'Moderate' ? '#f59e0b' : 'var(--red)';
       r.innerHTML = `
     <div class="glass" style="padding:20px;margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div>
+        <div style="flex:1;margin-right:12px">
           <div style="font-size:18px;font-weight:700">${d.disease_name}</div>
-          <div style="font-size:12px;color:var(--white75);font-style:italic">${d.scientific_name}</div>
+          <div style="font-size:12px;color:var(--white75);font-style:italic;margin-top:2px">${d.scientific_name || ''}</div>
+          ${d.symptoms_observed ? `<div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:8px;line-height:1.5">🔍 ${d.symptoms_observed}</div>` : ''}
         </div>
-        <div class="glass-sm" style="padding:8px 12px;text-align:center">
+        <div class="glass-sm" style="padding:8px 12px;text-align:center;flex-shrink:0">
           <div style="font-size:24px;font-weight:800;color:var(--gold)">${d.confidence_percent}%</div>
           <div style="font-size:10px;color:var(--white75)">Confidence</div>
         </div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-        <span class="glass-sm" style="padding:5px 10px;font-size:11px;color:var(--red)">⚠️ ${d.severity}</span>
+        <span class="glass-sm" style="padding:5px 10px;font-size:11px;color:${sevColor}">⚠️ ${d.severity}</span>
         <span class="glass-sm" style="padding:5px 10px;font-size:11px">${d.affected_area_percent}% Affected</span>
+        ${d.cause ? `<span class="glass-sm" style="padding:5px 10px;font-size:11px;color:var(--white75)">🦠 ${d.cause}</span>` : ''}
       </div>
     </div>
     <div class="glass" style="padding:20px;margin-bottom:14px">
-      <div class="sec-label" style="margin-bottom:12px">Treatment Steps</div>
+      <div class="sec-label" style="margin-bottom:12px">TREATMENT STEPS</div>
       ${(d.treatment_steps || []).map((s, i) => `<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><div style="width:28px;height:28px;border-radius:50%;background:rgba(245,200,66,0.2);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:var(--gold)">${i + 1}</div><div style="font-size:13px;line-height:1.5;color:var(--white75)">${s}</div></div>`).join("")}
     </div>
-    ${d.pesticides?.length
-          ? `<div class="glass" style="padding:20px;margin-bottom:14px">
-      <div class="sec-label" style="margin-bottom:12px">Pesticides</div>
+    ${d.pesticides?.length ? `<div class="glass" style="padding:20px;margin-bottom:14px">
+      <div class="sec-label" style="margin-bottom:12px">PESTICIDES</div>
       ${d.pesticides.map((p) => `<div class="glass-sm" style="padding:12px;margin-bottom:8px"><div style="font-weight:600">${p.name}</div><div style="font-size:12px;color:var(--white75)">${p.dosage} · ${p.frequency}</div></div>`).join("")}
-    </div>`
-          : ""
-        }`;
+    </div>` : ''}
+    ${d.organic_alternatives ? `<div class="glass" style="padding:16px;margin-bottom:14px;border:1px solid rgba(34,197,94,0.3)">
+      <div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:6px">🌿 ORGANIC ALTERNATIVE</div>
+      <div style="font-size:13px;color:var(--white75)">${d.organic_alternatives}</div>
+    </div>` : ''}
+    ${d.prevention_tips ? `<div class="glass" style="padding:16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px">🛡️ PREVENTION</div>
+      <div style="font-size:13px;color:var(--white75)">${d.prevention_tips}</div>
+    </div>` : ''}`;
       document.getElementById("riskBar").style.width =
-        Math.min(d.affected_area_percent * 1.5, 95) + "%";
+        Math.min((d.affected_area_percent || 0) * 1.5, 95) + "%";
     }
     function showDemoDisease() {
       showDiseaseResult({
