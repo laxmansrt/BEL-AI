@@ -4145,16 +4145,37 @@
       r.onload = (ev) => analyzeDisease(ev.target.result);
       r.readAsDataURL(f);
     }
-    async function analyzeDisease(b64) {
+    function compressImageBase64(b64) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          const max = 1024;
+          if (w > max || h > max) {
+            if (w > h) { h = Math.round(h * (max / w)); w = max; }
+            else { w = Math.round(w * (max / h)); h = max; }
+          }
+          const c = document.createElement("canvas");
+          c.width = w;
+          c.height = h;
+          c.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL("image/jpeg", 0.8));
+        };
+        img.src = b64;
+      });
+    }
+
+    async function analyzeDisease(rawB64) {
       const p = document.getElementById("diseaseProcessing");
-      p.querySelector("img").src = b64;
+      p.querySelector("img").src = rawB64;
       p.style.display = "";
       document.getElementById("diseaseResults").style.display = "none";
       try {
+        const compressedB64 = await compressImageBase64(rawB64);
         const res = await fetch(API_BASE + "/disease", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageBase64: b64.slice(0, 2000000) }),
+          body: JSON.stringify({ imageBase64: compressedB64 }),
         });
         const data = await res.json();
         p.style.display = "none";
@@ -4162,7 +4183,8 @@
         if (data.disease_name) {
           showDiseaseResult(data);
         } else if (data.error) {
-          showToast("⚠️ Analysis failed: " + data.error);
+          const detail = data.api_error ? JSON.stringify(data.api_error) : "";
+          showToast(`⚠️ Analysis failed: ${data.error} ${detail}`);
           document.getElementById("diseaseResults").style.display = "none";
         } else {
           showToast("⚠️ Could not analyze image. Try a clearer photo of a leaf.");
@@ -4268,13 +4290,14 @@
       openCamera("food");
       showToast("Point camera at barcode");
     }
-    async function analyzeLabel(b64) {
+    async function analyzeLabel(rawB64) {
       showLoad("Analyzing label...");
       try {
+        const compressedB64 = await compressImageBase64(rawB64);
         const res = await fetch(API_BASE + "/food-label", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageBase64: b64.slice(0, 2000000) }),
+          body: JSON.stringify({ imageBase64: compressedB64 }),
         });
         const data = await res.json();
         hideLoad();
