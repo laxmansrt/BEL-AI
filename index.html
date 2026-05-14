@@ -1557,9 +1557,9 @@
       var isKaiOS   = /KAIOS/i.test(ua);
       var isOldGecko = /Gecko\/4[0-9]\./i.test(ua);  // Firefox < 50
       var isJioPhone = /JioPhone|Jio/i.test(ua);
-      // Redirect KaiOS/JioPhone to lite.html immediately
+      // Redirect KaiOS/JioPhone to backend's server-rendered lite pages (zero JS required)
       if ((isKaiOS || isJioPhone || isOldGecko) && window.location.pathname.indexOf('lite') === -1) {
-        window.location.href = '/lite.html';
+        window.location.href = 'https://bel-ai-bknd.vercel.app/lite';
         return;
       }
       var noSpeech  = !('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window);
