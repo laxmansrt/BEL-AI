@@ -1508,3 +1508,171 @@
       padding: 9px 12px;
       min-width: 128px
     }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE SYSTEM — ALL DEVICES
+       Jio/Keypad (240px) → Smartphone → Tablet → Desktop
+    ══════════════════════════════════════════════ */
+
+    /* Fluid sizing tokens */
+    :root {
+      --font-base: clamp(13px, 3.5vw, 16px);
+      --font-sm:   clamp(11px, 3vw, 14px);
+      --font-lg:   clamp(16px, 4.5vw, 22px);
+      --font-xl:   clamp(20px, 6vw, 32px);
+    }
+
+    /* ── Ultra-small: Jio / feature phones (max 320px) ─────── */
+    @media (max-width: 320px) {
+      :root {
+        --pad: 10px;
+        --gap: 8px;
+        --radius: 10px;
+        --radius-sm: 6px;
+      }
+
+      html, body { font-size: 13px; }
+
+      .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+
+      .btn-primary, .btn-outline, .google-btn,
+      button, .chip, .query-tab {
+        min-height: 44px;
+        font-size: 13px !important;
+        padding: 10px 12px !important;
+      }
+
+      .top-bar { padding: 40px 10px 10px; }
+      .back-btn { width: 38px; height: 38px; font-size: 16px; }
+      .page-title { font-size: 15px; }
+      .screen-content { padding: 10px; padding-bottom: 30px; }
+
+      .glass-input {
+        font-size: 14px !important;
+        padding: 12px 10px !important;
+      }
+
+      .mod-card { aspect-ratio: 16 / 7; }
+      .profile-name { font-size: 17px; }
+      .profile-avatar { width: 72px; height: 72px; }
+      .profile-hero { padding: 36px 10px 56px; }
+      .sec-title { font-size: 15px; }
+      .ticker-wrap { display: none; }
+      .msg-bot, .msg-user { max-width: 95%; font-size: 13px; }
+
+      .vc-ai-orb { width: 120px; height: 120px; }
+      .vc-pip { width: 70px; height: 95px; bottom: 80px; }
+      .vc-btn { width: 44px; height: 44px; font-size: 18px; }
+      .vc-end-btn { width: 52px; height: 52px; font-size: 20px; }
+      .vc-controls { gap: 12px; padding: 12px 10px 16px; }
+
+      .fade-up { animation: none; }
+      .lang-card:hover { transform: none; }
+
+      #toast {
+        white-space: normal;
+        width: calc(100% - 20px);
+        text-align: center;
+        font-size: 12px;
+        bottom: 16px;
+      }
+    }
+
+    /* ── Small phones: 321px–480px ─────────────────────────── */
+    @media (min-width: 321px) and (max-width: 480px) {
+      .grid-3 { grid-template-columns: 1fr 1fr !important; }
+      .top-bar { padding: 48px var(--pad) 12px; }
+      .screen-content { padding: 14px; padding-bottom: 32px; }
+      .profile-avatar { width: 86px; height: 86px; }
+      .profile-hero { padding: 42px 16px 64px; }
+      .vc-ai-orb { width: 150px; height: 150px; }
+      .vc-pip { width: 90px; height: 120px; }
+    }
+
+    /* ── Tablets / large phones: 481px–768px ───────────────── */
+    @media (min-width: 481px) and (max-width: 768px) {
+      :root { --pad: 20px; }
+      .grid-3 { grid-template-columns: repeat(3, 1fr); }
+      .mod-card { aspect-ratio: 3 / 2; }
+      .rec-card img { width: 80px; height: 80px; }
+    }
+
+    /* ── Desktop / tablet landscape: 769px+ ────────────────── */
+    @media (min-width: 769px) {
+      :root { --pad: 32px; --gap: 20px; }
+
+      .screen-content {
+        max-width: 720px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .top-bar {
+        max-width: 720px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .grid-2, .grid-3 { gap: 20px; }
+      .vc-pip { width: 130px; height: 175px; }
+      .profile-hero { padding: 60px 32px 90px; }
+      .profile-avatar { width: 120px; height: 120px; }
+      .profile-name { font-size: 26px; }
+    }
+
+    /* ── Large desktop: 1200px+ ─────────────────────────────── */
+    @media (min-width: 1200px) {
+      .screen-content { max-width: 860px; }
+      .top-bar { max-width: 860px; }
+    }
+
+    /* ── No-backdrop-filter fallback (old/cheap browsers) ───── */
+    @supports not (backdrop-filter: blur(1px)) {
+      .glass, .glass-sm, .glass-input, .btn-primary,
+      .btn-outline, .lang-pill, .back-btn,
+      .msg-bot, .vc-card, .vc-status-bar {
+        background: rgba(10, 25, 12, 0.92) !important;
+      }
+    }
+
+    /* ── Safe area insets (notch / cutout support) ───────────── */
+    .screen-content {
+      padding-bottom: max(40px, env(safe-area-inset-bottom));
+    }
+
+    .top-bar {
+      padding-top: max(56px, calc(40px + env(safe-area-inset-top)));
+    }
+
+    /* ── Touch devices: bigger tap targets ───────────────────── */
+    @media (pointer: coarse) {
+      .back-btn, .lang-pill, .chip {
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .mod-card:hover,
+      .lang-card:hover,
+      .btn-primary:hover,
+      .btn-outline:hover {
+        transform: none;
+        background: initial;
+        border-color: initial;
+      }
+    }
+
+    /* ── Reduced motion preference ──────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ── Print ───────────────────────────────────────────────── */
+    @media print {
+      .bg-photo, .bg-overlay, #toast, #loadOverlay,
+      .vc-controls, #videoCallOverlay { display: none !important; }
+      body { background: #fff; color: #000; }
+    }

@@ -1548,6 +1548,22 @@
     // ⚠️  Replace with your Google Client ID from console.cloud.google.com
     const GOOGLE_CLIENT_ID = "1033866191301-8vtgr29i5fauu8m885k4u99sq9mk7mhm.apps.googleusercontent.com";
     // NOTE: GROQ_KEY is handled server-side in the backend
+
+    // ── LITE MODE DETECTOR ────────────────────────────────
+    // Detects KaiOS / old browsers. ONLY sets body.lite-mode.
+    // All other devices are completely unaffected.
+    (function detectLiteMode() {
+      const ua = navigator.userAgent || '';
+      const isKaiOS   = /KAIOS/i.test(ua);
+      const isOldGecko = /Gecko\/4[0-9]\./i.test(ua);  // Firefox < 50
+      const noSpeech  = !('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window);
+      const noWebRTC  = !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia;
+      const smallRAM  = navigator.deviceMemory && navigator.deviceMemory < 1; // < 1 GB
+      if (isKaiOS || isOldGecko || (noSpeech && noWebRTC) || smallRAM) {
+        document.body.classList.add('lite-mode');
+        console.info('[BELAI] Lite mode activated');
+      }
+    })();
   </script>
 
   <!-- SHARED BG + OVERLAY (swapped per screen via JS) -->
@@ -3064,6 +3080,35 @@
       <button class="vc-btn" id="vcCamBtn" onclick="toggleVcCamera()" title="Camera">📷</button>
     </div>
   </div>
+
+  <!-- Fix 2: Lite-mode Expert Contact Panel (hidden on Android/iPhone/Desktop via CSS) -->
+  <div id="liteExpertPanel" style="display:none; position:fixed; inset:0; z-index:9500;
+    background:rgba(0,0,0,0.92); align-items:center; justify-content:center;
+    flex-direction:column; gap:20px; padding:24px;">
+    <div style="font-size:48px">🌾</div>
+    <div style="font-size:20px; font-weight:700; color:#fff; text-align:center">Connect with Expert</div>
+    <div style="font-size:14px; color:rgba(255,255,255,0.7); text-align:center; max-width:280px">
+      Video calls need a modern browser. Connect with our agricultural experts:
+    </div>
+    <a href="https://wa.me/919999999999?text=Hello%20BELAI%20Expert%2C%20I%20need%20farming%20help"
+       target="_blank" style="display:flex; align-items:center; gap:12px; background:#25D366;
+       border:none; border-radius:16px; padding:16px 24px; color:#fff; font-size:16px;
+       font-weight:700; text-decoration:none; width:100%; max-width:300px; justify-content:center;">
+      <span style="font-size:24px">💬</span> WhatsApp Expert
+    </a>
+    <a href="tel:+919999999999" style="display:flex; align-items:center; gap:12px;
+       background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3);
+       border-radius:16px; padding:16px 24px; color:#fff; font-size:16px;
+       font-weight:700; text-decoration:none; width:100%; max-width:300px; justify-content:center;">
+      <span style="font-size:24px">📞</span> Call Expert
+    </a>
+    <button onclick="document.getElementById('liteExpertPanel').style.display='none'"
+      style="background:none; border:1px solid rgba(255,255,255,0.3); border-radius:12px;
+      color:rgba(255,255,255,0.7); padding:12px 32px; font-size:14px; cursor:pointer; margin-top:8px;">
+      ✕ Close
+    </button>
+  </div>
+
   <div id="toast"></div>
   <div id="loadOverlay">
     <div class="spin"></div>
@@ -3253,10 +3298,13 @@
         return;
       }
 
+      // Fix 4: Use redirect mode on lite devices (KaiOS blocks popups)
+      const isLite = document.body.classList.contains('lite-mode');
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleCredential,
-        ux_mode: 'popup',
+        ux_mode: isLite ? 'redirect' : 'popup',
+        redirect_uri: isLite ? window.location.origin + '/index.html' : undefined,
         auto_select: false,
         cancel_on_tap_outside: true,
       });
@@ -4401,6 +4449,8 @@
         const reply = data.reply || "Unable to respond. Try again.";
         lb.innerHTML = reply;
         CONV_HIST.push({ role: "assistant", content: reply });
+        // Fix 1: Speak the reply on lite-mode devices
+        if (document.body.classList.contains('lite-mode')) liteSpeak(reply);
       } catch (e) {
         lb.innerHTML = "Connection error. Try again.";
       }
@@ -4417,10 +4467,28 @@
       return d;
     }
     let currentVoiceRec = null;
+    // Fix 1: TTS audio reply for lite-mode bots (plays after sendBotMsg)
+    function liteSpeak(text) {
+      // Use Web Speech Synthesis if available (works on some KaiOS)
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,''));
+        utt.lang = BOT_LANG === 'kn' ? 'kn-IN' : BOT_LANG === 'hi' ? 'hi-IN' : 'en-IN';
+        utt.rate = 0.9;
+        window.speechSynthesis.speak(utt);
+      }
+      // else: silently skip — text is already shown in chat bubble
+    }
     function startVoice() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) {
-        showToast("Voice not supported");
+        // Lite mode: show keyboard input hint instead of error
+        if (document.body.classList.contains('lite-mode')) {
+          document.getElementById('chatInput').focus();
+          showToast('Type your question below 👆');
+        } else {
+          showToast('Voice not supported');
+        }
         return;
       }
       if (currentVoiceRec) {
@@ -4930,6 +4998,86 @@
     });
   </script>
   <script src="belai-features.js"></script>
+
+  <!-- ── LITE MODE LOGIC (only runs on body.lite-mode devices) ── -->
+  <script>
+    // Fix 2: Intercept video call on lite-mode — show WhatsApp/Call Expert instead
+    (function patchVideoCall() {
+      if (!document.body.classList.contains('lite-mode')) return;
+      document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[onclick*="startVideoCall"],[onclick*="vcStart"],[data-action="video-call"]');
+        if (btn) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          const panel = document.getElementById('liteExpertPanel');
+          if (panel) panel.style.display = 'flex';
+        }
+      }, true);
+      // Also override the global function if it exists
+      setTimeout(function() {
+        if (typeof window.startVideoCall === 'function') {
+          const orig = window.startVideoCall;
+          window.startVideoCall = function() {
+            const panel = document.getElementById('liteExpertPanel');
+            if (panel) { panel.style.display = 'flex'; return; }
+            orig.apply(this, arguments);
+          };
+        }
+      }, 500);
+    })();
+  </script>
+
+  <!-- ── LITE MODE CSS (strictly scoped to body.lite-mode — zero impact elsewhere) ── -->
+  <style>
+    /* Fix 2: Hide video call overlay on lite */
+    body.lite-mode #videoCallOverlay { display: none !important; }
+
+    /* Fix 3: Hide camera button on Disease screen — gallery still works */
+    body.lite-mode #mod-disease [onclick*="openCamera"] { display: none !important; }
+    body.lite-mode #mod-disease [onclick*="fileUpload"] { grid-column: 1 / -1; }
+
+    /* Fix 4: Hide Google popup button — email login is prominent */
+    body.lite-mode .google-btn-container,
+    body.lite-mode .auth-divider { display: none !important; }
+
+    /* Bigger tap targets for keypad navigation */
+    body.lite-mode .btn-primary,
+    body.lite-mode .btn-outline,
+    body.lite-mode .glass-input { min-height: 48px; }
+
+    /* Disable GPU-heavy glassmorphism on low-end devices */
+    body.lite-mode .glass,
+    body.lite-mode .glass-sm,
+    body.lite-mode .glass-input,
+    body.lite-mode .btn-primary,
+    body.lite-mode .btn-outline,
+    body.lite-mode .back-btn,
+    body.lite-mode .lang-pill {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: rgba(10,25,12,0.92) !important;
+    }
+
+    /* Disable heavy animations on lite */
+    body.lite-mode .fade-up,
+    body.lite-mode .live-dot,
+    body.lite-mode .ticker-track { animation: none !important; }
+
+    /* Small lite-mode banner at top */
+    body.lite-mode::before {
+      content: '📱 Lite Mode — Optimised for your device';
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10000;
+      background: rgba(34,197,94,0.88);
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 4px 8px;
+    }
+  </style>
 </body>
 
 </html>
