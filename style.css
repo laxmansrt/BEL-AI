@@ -24,13 +24,24 @@
       --red: #ef4444;
     }
 
+    html {
+      background: #000;
+    }
     html,
     body {
       height: 100%;
       font-family: "Inter", sans-serif;
-      background: #000;
       overflow-x: hidden;
       color: var(--white);
+    }
+    body {
+      max-width: 440px;
+      margin: 0 auto;
+      position: relative;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      background: #050a06;
+      box-shadow: 0 0 50px rgba(0,0,0,0.9);
     }
 
     .screen {
@@ -49,8 +60,10 @@
     .bg-photo {
       position: fixed;
       top: 0;
-      left: 0;
+      left: 50%;
+      transform: translateX(-50%);
       width: 100%;
+      max-width: 440px;
       height: 100%;
       object-fit: cover;
       z-index: 0;
@@ -59,8 +72,10 @@
     .bg-overlay {
       position: fixed;
       top: 0;
-      left: 0;
+      left: 50%;
+      transform: translateX(-50%);
       width: 100%;
+      max-width: 440px;
       height: 100%;
       background: rgba(0, 0, 0, 0.42);
       z-index: 1;
@@ -533,7 +548,6 @@
       position: relative;
       cursor: pointer;
       border: 1px solid var(--glass-border);
-      aspect-ratio: 1 / 1;
       transition: transform 0.2s;
     }
 
