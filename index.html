@@ -1550,15 +1550,21 @@
     // NOTE: GROQ_KEY is handled server-side in the backend
 
     // ── LITE MODE DETECTOR ────────────────────────────────
-    // Detects KaiOS / old browsers. ONLY sets body.lite-mode.
+    // Detects KaiOS / old browsers. Redirects to lite.html on JioPhone/KaiOS.
     // All other devices are completely unaffected.
     (function detectLiteMode() {
-      const ua = navigator.userAgent || '';
-      const isKaiOS   = /KAIOS/i.test(ua);
-      const isOldGecko = /Gecko\/4[0-9]\./i.test(ua);  // Firefox < 50
-      const noSpeech  = !('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window);
-      const noWebRTC  = !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia;
-      const smallRAM  = navigator.deviceMemory && navigator.deviceMemory < 1; // < 1 GB
+      var ua = navigator.userAgent || '';
+      var isKaiOS   = /KAIOS/i.test(ua);
+      var isOldGecko = /Gecko\/4[0-9]\./i.test(ua);  // Firefox < 50
+      var isJioPhone = /JioPhone|Jio/i.test(ua);
+      // Redirect KaiOS/JioPhone to lite.html immediately
+      if ((isKaiOS || isJioPhone || isOldGecko) && window.location.pathname.indexOf('lite') === -1) {
+        window.location.href = '/lite.html';
+        return;
+      }
+      var noSpeech  = !('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window);
+      var noWebRTC  = !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia;
+      var smallRAM  = navigator.deviceMemory && navigator.deviceMemory < 1; // < 1 GB
       if (isKaiOS || isOldGecko || (noSpeech && noWebRTC) || smallRAM) {
         document.body.classList.add('lite-mode');
         console.info('[BELAI] Lite mode activated');
