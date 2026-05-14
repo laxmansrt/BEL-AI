@@ -319,3 +319,4 @@ function updateVcOrderStatus() {
     document.getElementById('vcOrderId').textContent     = 'No active order';
   }
 }
+
