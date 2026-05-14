@@ -211,26 +211,26 @@
   <!-- ═══ HOME MENU ═══ -->
   <div id="page-home">
     <div class="menu">
-      <div class="menu-item" onclick="showPage('ask')">
+      <a class="menu-item" href="javascript:showPage('ask')">
         &#129302; Ask AI (Any Question)
         <span class="arrow">&#9658;</span>
-      </div>
-      <div class="menu-item" onclick="showPage('prices')">
+      </a>
+      <a class="menu-item" href="javascript:showPage('prices')">
         &#128200; Mandi Prices Today
         <span class="arrow">&#9658;</span>
-      </div>
-      <div class="menu-item" onclick="showPage('planner')">
+      </a>
+      <a class="menu-item" href="javascript:showPage('planner')">
         &#127807; Crop Planner
         <span class="arrow">&#9658;</span>
-      </div>
-      <div class="menu-item" onclick="showPage('schemes')">
+      </a>
+      <a class="menu-item" href="javascript:showPage('schemes')">
         &#127963; Govt Schemes (PM-Kisan)
         <span class="arrow">&#9658;</span>
-      </div>
-      <div class="menu-item" onclick="showPage('tips')">
+      </a>
+      <a class="menu-item" href="javascript:showPage('tips')">
         &#9889; Quick Farming Tips
         <span class="arrow">&#9658;</span>
-      </div>
+      </a>
     </div>
 
     <div class="card">
@@ -248,7 +248,7 @@
 
   <!-- ═══ ASK AI PAGE ═══ -->
   <div id="page-ask" class="hidden">
-    <div class="back-link" onclick="showPage('home')">&#9664; Back to Menu</div>
+    <a class="back-link" href="javascript:showPage('home')">&#9664; Back to Menu</a>
     <h2>&#129302; Ask AI Anything</h2>
     <p style="font-size:12px; color:#88aa88; margin-bottom:8px;">Ask about crops, weather, diseases, prices, schemes...</p>
 
@@ -264,14 +264,14 @@
       <option value="te">Telugu</option>
     </select>
 
-    <button class="btn" onclick="askAI()">Ask BELAI &#9658;</button>
+    <a class="btn" href="javascript:askAI()" style="display:block;text-align:center;">Ask BELAI &#9658;</a>
 
     <div id="askResult" class="hidden"></div>
   </div>
 
   <!-- ═══ MANDI PRICES PAGE ═══ -->
   <div id="page-prices" class="hidden">
-    <div class="back-link" onclick="showPage('home')">&#9664; Back to Menu</div>
+    <a class="back-link" href="javascript:showPage('home')">&#9664; Back to Menu</a>
     <h2>&#128200; Mandi Prices Today</h2>
     <p style="font-size:12px; color:#88aa88; margin-bottom:8px;">Latest market rates (indicative)</p>
 
@@ -296,7 +296,7 @@
 
   <!-- ═══ CROP PLANNER PAGE ═══ -->
   <div id="page-planner" class="hidden">
-    <div class="back-link" onclick="showPage('home')">&#9664; Back to Menu</div>
+    <a class="back-link" href="javascript:showPage('home')">&#9664; Back to Menu</a>
     <h2>&#127807; AI Crop Planner</h2>
 
     <label>Your Location / District:</label>
@@ -322,14 +322,14 @@
     <label>Farm Size (acres):</label>
     <input type="text" id="plannerSize" placeholder="e.g. 2" />
 
-    <button class="btn" onclick="planCrop()">Get AI Recommendation &#9658;</button>
+    <a class="btn" href="javascript:planCrop()" style="display:block;text-align:center;">Get AI Recommendation &#9658;</a>
 
     <div id="plannerResult" class="hidden"></div>
   </div>
 
   <!-- ═══ GOVT SCHEMES PAGE ═══ -->
   <div id="page-schemes" class="hidden">
-    <div class="back-link" onclick="showPage('home')">&#9664; Back to Menu</div>
+    <a class="back-link" href="javascript:showPage('home')">&#9664; Back to Menu</a>
     <h2>&#127963; Government Schemes</h2>
 
     <div class="scheme">
@@ -371,7 +371,7 @@
 
   <!-- ═══ FARMING TIPS PAGE ═══ -->
   <div id="page-tips" class="hidden">
-    <div class="back-link" onclick="showPage('home')">&#9664; Back to Menu</div>
+    <a class="back-link" href="javascript:showPage('home')">&#9664; Back to Menu</a>
     <h2>&#9889; Quick Farming Tips</h2>
 
     <div class="card">
