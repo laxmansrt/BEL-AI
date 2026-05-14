@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="HandheldFriendly" content="true" />
+  <meta name="MobileOptimized" content="240" />
+  <title>BELAI - Farmer AI</title>
+  <style type="text/css">
+    body {
+      background: #0a1a0c;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      margin: 0;
+      padding: 6px;
+    }
+    h1 {
+      font-size: 18px;
+      color: #f5c842;
+      text-align: center;
+      margin: 6px 0 2px 0;
+      border-bottom: 1px solid #2a4a2c;
+      padding-bottom: 6px;
+    }
+    h2 {
+      font-size: 15px;
+      color: #f5c842;
+      margin: 8px 0 4px 0;
+    }
+    h3 {
+      font-size: 13px;
+      color: #a3e635;
+      margin: 6px 0 3px 0;
+    }
+    .sub {
+      font-size: 11px;
+      color: #88aa88;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    a {
+      color: #f5c842;
+      text-decoration: none;
+    }
+    a:visited { color: #d4a800; }
+
+    /* Nav menu */
+    .menu {
+      background: #1a2e1c;
+      border: 1px solid #2a4a2c;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    .menu-item {
+      display: block;
+      padding: 10px 8px;
+      border-bottom: 1px solid #2a4a2c;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item .arrow { color: #f5c842; float: right; }
+
+    /* Forms */
+    form { margin: 0; padding: 0; }
+    textarea, input[type="text"], select {
+      width: 100%;
+      background: #1a2e1c;
+      border: 1px solid #3a6a3c;
+      color: #ffffff;
+      font-size: 13px;
+      padding: 8px;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    input[type="submit"] {
+      background: #1a5e1c;
+      border: 2px solid #f5c842;
+      color: #f5c842;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 10px;
+      width: 100%;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+    label {
+      display: block;
+      color: #88cc88;
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    /* Answer box */
+    .answer {
+      background: #0f2a10;
+      border: 1px solid #3a6a3c;
+      border-left: 3px solid #f5c842;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .you-said {
+      background: #1a1a00;
+      border: 1px solid #4a4a00;
+      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #cccc88;
+    }
+
+    /* Price table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    th {
+      background: #1a3e1c;
+      color: #f5c842;
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid #3a6a3c;
+      font-size: 11px;
+    }
+    td {
+      padding: 7px 4px;
+      border-bottom: 1px solid #1a3a1c;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #0f1f10; }
+    .up { color: #22c55e; font-weight: bold; }
+    .down { color: #ef4444; font-weight: bold; }
+    .flat { color: #facc15; }
+
+    /* Info cards */
+    .card {
+      background: #1a2e1c;
+      border: 1px solid #2a4a2c;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+    .badge {
+      background: #22c55e;
+      color: #000;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 1px 5px;
+    }
+    .badge-warn {
+      background: #f5c842;
+      color: #000;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 1px 5px;
+    }
+    .badge-red {
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 1px 5px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #446644;
+      margin-top: 14px;
+      padding-top: 8px;
+      border-top: 1px solid #1a3a1c;
+    }
+    .back-link {
+      display: block;
+      background: #1a2e1c;
+      border: 1px solid #2a4a2c;
+      color: #f5c842;
+      text-align: center;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    /* Quick tip chips */
+    .tips {
+      margin-bottom: 10px;
+    }
+    .tip-link {
+      display: inline-block;
+      background: #1a3e1c;
+      border: 1px solid #2a5a2c;
+      color: #a3e635;
+      font-size: 11px;
+      padding: 4px 8px;
+      margin: 3px 2px 3px 0;
+      text-decoration: none;
+    }
+    .separator {
+      border: none;
+      border-top: 1px solid #1a3a1c;
+      margin: 10px 0;
+    }
+    .green { color: #22c55e; }
+    .gold-text { color: #f5c842; }
+    .err { color: #ef4444; font-size: 12px; }
+    .scheme {
+      background: #0f1a0f;
+      border-left: 2px solid #22c55e;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>&#127807; BELAI</h1>
+  <p class="sub">Farmer AI Assistant | Lite Mode</p>
+
+  <!-- ═══ HOME MENU ═══ -->
+  <div class="menu">
+    <a class="menu-item" href="/lite/ask">
+      &#129302; Ask AI (Any Question)
+      <span class="arrow">&#9658;</span>
+    </a>
+    <a class="menu-item" href="/lite/prices">
+      &#128200; Mandi Prices Today
+      <span class="arrow">&#9658;</span>
+    </a>
+    <a class="menu-item" href="/lite/planner">
+      &#127807; Crop Planner
+      <span class="arrow">&#9658;</span>
+    </a>
+    <a class="menu-item" href="/lite/schemes">
+      &#127963; Govt Schemes (PM-Kisan)
+      <span class="arrow">&#9658;</span>
+    </a>
+    <a class="menu-item" href="/lite/tips">
+      &#9889; Quick Farming Tips
+      <span class="arrow">&#9658;</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <b class="gold-text">&#128241; Using Karbon K9?</b><br/>
+    This lite page works on all phones. No internet apps needed.<br/>
+    Type your farming question and get instant AI advice.
+  </div>
+
+  <div class="card">
+    <b>PM-Kisan:</b> Rs.6000/year &bull;
+    <b>Fasal Bima:</b> Crop insurance &bull;
+    <b>eNAM:</b> Online mandi
+  </div>
+
+  <div class="footer">
+    BELAI - AI for Indian Farmers | belai.vercel.app<br/>
+    Works on all phones - Karbon, JioPhone, Nokia
+  </div>
+
+</body>
+</html>
