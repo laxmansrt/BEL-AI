@@ -4480,8 +4480,8 @@
         const reply = data.reply || "Unable to respond. Try again.";
         lb.innerHTML = reply;
         CONV_HIST.push({ role: "assistant", content: reply });
-        // Fix 1: Speak the reply on lite-mode devices
-        if (document.body.classList.contains('lite-mode')) liteSpeak(reply);
+        // Speak the reply out loud on all devices
+        speakReply(reply);
       } catch (e) {
         lb.innerHTML = "Connection error. Try again.";
       }
@@ -4498,17 +4498,19 @@
       return d;
     }
     let currentVoiceRec = null;
-    // Fix 1: TTS audio reply for lite-mode bots (plays after sendBotMsg)
-    function liteSpeak(text) {
-      // Use Web Speech Synthesis if available (works on some KaiOS)
+    
+    // Automatically read bot replies out loud using Web Speech API
+    function speakReply(text) {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
         const utt = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,''));
-        utt.lang = BOT_LANG === 'kn' ? 'kn-IN' : BOT_LANG === 'hi' ? 'hi-IN' : 'en-IN';
+        utt.lang = BOT_LANG === 'kn' ? 'kn-IN' : 
+                   BOT_LANG === 'hi' ? 'hi-IN' : 
+                   BOT_LANG === 'te' ? 'te-IN' : 
+                   BOT_LANG === 'ta' ? 'ta-IN' : 'en-IN';
         utt.rate = 0.9;
         window.speechSynthesis.speak(utt);
       }
-      // else: silently skip — text is already shown in chat bubble
     }
     function startVoice() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
